@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Order Queue - Client View</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .status-received { background-color: #FFA500; }
+        .status-printing { background-color: #FFD580; }
+        .status-packaging { background-color: #FFC0CB; }
+        .status-completed { background-color: #90EE90; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Job Order Queue - Status</h1>
+        
+        <!-- Orders List -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Current Orders</h2>
+            <div id="ordersList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display orders
+        async function fetchOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const orders = await response.json();
+                const ordersListElement = document.getElementById('ordersList');
+                ordersListElement.innerHTML = '';
+
+                if (orders.length === 0) {
+                    ordersListElement.innerHTML = '<p class="text-gray-500">No orders found</p>';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const orderElement = document.createElement('div');
+                    orderElement.className = `p-4 rounded-lg mb-4 status-${order.status}`;
+                    
+                    let removeButton = '';
+                    if (order.status === 'completed') {
+                        removeButton = `
+                            <div class="mt-2">
+                                <button onclick="removeOrder(${order.id})" 
+                                    class="bg-red-500 text-white px-3 py-1 rounded-md text-sm">
+                                    Remove
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    orderElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-semibold">Customer: ${order.customer_name}</div>
+                                <div class="text-sm">Project: ${order.project_details}</div>
+                                <div class="text-sm mt-2">Status: ${order.status}</div>
+                                <div class="text-xs text-gray-500 mt-1">Created: ${new Date(order.created_at).toLocaleString()}</div>
+                                ${removeButton}
+                            </div>
+                        </div>
+                    `;
+                    ordersListElement.appendChild(orderElement);
+                });
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                const ordersListElement = document.getElementById('ordersList');
+                ordersListElement.innerHTML = '<p class="text-red-500">Error loading orders. Please try again later.</p>';
+            }
+        }
+
+        // Remove order function
+        async function removeOrder(orderId) {
+            if (!confirm('Are you sure you want to remove this completed order?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                await fetchOrders();
+            } catch (error) {
+                console.error('Error removing order:', error);
+                alert('Error removing order. Please try again.');
+            }
+        }
+
+        // Initial fetch
+        fetchOrders();
+        // Refresh orders every 5 seconds
+        setInterval(fetchOrders, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: job-order-queue
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: DATABASE_URL
+        value: https://queing-system-rayneverge2021.turso.io
+      - key: DATABASE_AUTH_TOKEN
+        sync: false
+      - key: PORT
+        value: 3000

@@ -1,0 +1,230 @@
+<%- include('layout', {
+    title: 'Dashboard',
+    path: '/admin/dashboard',
+    style: `
+        <style>
+            .stats-card {
+                transition: transform 0.2s;
+            }
+            .stats-card:hover {
+                transform: translateY(-5px);
+            }
+            .chart-container {
+                position: relative;
+                height: 300px;
+                margin-bottom: 20px;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    `,
+    body: `
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Orders</h5>
+                        <h2 class="card-text" id="dailyTotal">0</h2>
+                        <p class="mb-0">Completed: <span id="dailyCompleted">0</span></p>
+                        <p class="mb-0">In Progress: <span id="dailyInProgress">0</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Weekly Orders</h5>
+                        <h2 class="card-text" id="weeklyTotal">0</h2>
+                        <p class="mb-0">Completed: <span id="weeklyCompleted">0</span></p>
+                        <p class="mb-0">In Progress: <span id="weeklyInProgress">0</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Monthly Orders</h5>
+                        <h2 class="card-text" id="monthlyTotal">0</h2>
+                        <p class="mb-0">Completed: <span id="monthlyCompleted">0</span></p>
+                        <p class="mb-0">In Progress: <span id="monthlyInProgress">0</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-warning text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Avg. Completion Time</h5>
+                        <h2 class="card-text"><span id="avgCompletionTime">0</span> hrs</h2>
+                        <p class="mb-0">Based on completed orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Status Distribution</h5>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Orders Timeline</h5>
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Export Reports</h5>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary me-2" onclick="exportReport('excel')">
+                                <i class="fas fa-file-excel"></i> Export to Excel
+                            </button>
+                            <button class="btn btn-success me-2" onclick="exportReport('csv')">
+                                <i class="fas fa-file-csv"></i> Export to CSV
+                            </button>
+                            <button class="btn btn-info me-2" onclick="window.print()">
+                                <i class="fas fa-print"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    script: `
+        <script>
+            let statusChart;
+            let timelineChart;
+
+            function initCharts(data) {
+                // Status Distribution Chart
+                const statusCtx = document.getElementById('statusChart').getContext('2d');
+                const statusData = data.statusBreakdown;
+                
+                if (statusChart) statusChart.destroy();
+                statusChart = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(statusData).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+                        datasets: [{
+                            data: Object.values(statusData),
+                            backgroundColor: [
+                                '#ff6384',
+                                '#36a2eb',
+                                '#ffce56',
+                                '#4bc0c0'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                // Timeline Chart
+                const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+                
+                if (timelineChart) timelineChart.destroy();
+                timelineChart = new Chart(timelineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Daily', 'Weekly', 'Monthly'],
+                        datasets: [
+                            {
+                                label: 'Completed',
+                                data: [
+                                    data.daily.completed,
+                                    data.weekly.completed,
+                                    data.monthly.completed
+                                ],
+                                backgroundColor: '#36a2eb'
+                            },
+                            {
+                                label: 'In Progress',
+                                data: [
+                                    data.daily.inProgress,
+                                    data.weekly.inProgress,
+                                    data.monthly.inProgress
+                                ],
+                                backgroundColor: '#ffce56'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                stacked: true
+                            },
+                            x: {
+                                stacked: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateStats(data) {
+                // Daily stats
+                document.getElementById('dailyTotal').textContent = data.daily.total;
+                document.getElementById('dailyCompleted').textContent = data.daily.completed;
+                document.getElementById('dailyInProgress').textContent = data.daily.inProgress;
+
+                // Weekly stats
+                document.getElementById('weeklyTotal').textContent = data.weekly.total;
+                document.getElementById('weeklyCompleted').textContent = data.weekly.completed;
+                document.getElementById('weeklyInProgress').textContent = data.weekly.inProgress;
+
+                // Monthly stats
+                document.getElementById('monthlyTotal').textContent = data.monthly.total;
+                document.getElementById('monthlyCompleted').textContent = data.monthly.completed;
+                document.getElementById('monthlyInProgress').textContent = data.monthly.inProgress;
+
+                // Average completion time
+                document.getElementById('avgCompletionTime').textContent = data.averageCompletionTime;
+
+                // Update charts
+                initCharts(data);
+            }
+
+            async function fetchDashboardData() {
+                try {
+                    const response = await fetch('/api/reports/summary');
+                    const data = await response.json();
+                    updateStats(data);
+                } catch (error) {
+                    console.error('Error fetching dashboard data:', error);
+                }
+            }
+
+            function exportReport(format) {
+                window.location.href = `/api/reports/export/${format}`;
+            }
+
+            // Initial load
+            fetchDashboardData();
+
+            // Refresh every 30 seconds
+            setInterval(fetchDashboardData, 30000);
+        </script>
+    `
+}) %> 

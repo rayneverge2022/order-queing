@@ -1,0 +1,116 @@
+<style>
+    .sidebar {
+        min-height: 100vh;
+        background: #2c3e50;
+        color: white;
+        width: 250px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 100;
+        transition: all 0.3s;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        background: #1a2634;
+    }
+
+    .sidebar-menu {
+        padding: 0;
+        list-style: none;
+    }
+
+    .sidebar-menu li {
+        width: 100%;
+    }
+
+    .sidebar-menu a {
+        padding: 15px 20px;
+        color: #ecf0f1;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .sidebar-menu a:hover {
+        background: #34495e;
+        color: #fff;
+    }
+
+    .sidebar-menu i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .active-menu {
+        background: #34495e;
+    }
+
+    .content-wrapper {
+        margin-left: 250px;
+        padding: 20px;
+        transition: all 0.3s;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            margin-left: -250px;
+        }
+        .sidebar.active {
+            margin-left: 0;
+        }
+        .content-wrapper {
+            margin-left: 0;
+        }
+        .content-wrapper.active {
+            margin-left: 250px;
+        }
+    }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h4>Admin Panel</h4>
+    </div>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="/admin/dashboard" class="<%= path === '/admin/dashboard' ? 'active-menu' : '' %>">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="/admin" class="<%= path === '/admin' ? 'active-menu' : '' %>">
+                <i class="fas fa-tasks"></i>
+                Order Management
+            </a>
+        </li>
+        <li>
+            <a href="/admin/reports" class="<%= path === '/admin/reports' ? 'active-menu' : '' %>">
+                <i class="fas fa-file-alt"></i>
+                Reports
+            </a>
+        </li>
+        <li>
+            <a href="/admin/settings" class="<%= path === '/admin/settings' ? 'active-menu' : '' %>">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="content-wrapper">
+    <%- body %>
+</div>
+
+<script>
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('active');
+        document.querySelector('.content-wrapper').classList.toggle('active');
+    }
+</script>

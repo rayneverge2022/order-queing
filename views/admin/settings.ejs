@@ -1,0 +1,148 @@
+<%- include('layout', {
+    title: 'Settings',
+    path: '/admin/settings',
+    style: `
+        <style>
+            .settings-card {
+                margin-bottom: 1.5rem;
+            }
+            .form-switch {
+                padding-left: 2.5em;
+            }
+        </style>
+    `,
+    body: `
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <!-- Notification Settings -->
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Notification Settings</h5>
+                        <form id="notificationForm">
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="emailNotifications">
+                                <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="emailAddress" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="emailAddress">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Display Settings -->
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Display Settings</h5>
+                        <form id="displayForm">
+                            <div class="mb-3">
+                                <label for="ordersPerPage" class="form-label">Orders per Page</label>
+                                <select class="form-select" id="ordersPerPage">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkMode">
+                                <label class="form-check-label" for="darkMode">Dark Mode</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Auto-refresh Settings -->
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Auto-refresh Settings</h5>
+                        <form id="refreshForm">
+                            <div class="mb-3">
+                                <label for="refreshInterval" class="form-label">Refresh Interval (seconds)</label>
+                                <select class="form-select" id="refreshInterval">
+                                    <option value="0">Disabled</option>
+                                    <option value="5">5 seconds</option>
+                                    <option value="10">10 seconds</option>
+                                    <option value="30">30 seconds</option>
+                                    <option value="60">1 minute</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="text-end">
+                    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    `,
+    script: `
+        <script>
+            // Load settings from localStorage on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                loadSettings();
+            });
+
+            function loadSettings() {
+                // Load notification settings
+                const emailNotifications = localStorage.getItem('emailNotifications') === 'true';
+                const emailAddress = localStorage.getItem('emailAddress') || '';
+                document.getElementById('emailNotifications').checked = emailNotifications;
+                document.getElementById('emailAddress').value = emailAddress;
+
+                // Load display settings
+                const ordersPerPage = localStorage.getItem('ordersPerPage') || '5';
+                const darkMode = localStorage.getItem('darkMode') === 'true';
+                document.getElementById('ordersPerPage').value = ordersPerPage;
+                document.getElementById('darkMode').checked = darkMode;
+
+                // Load refresh settings
+                const refreshInterval = localStorage.getItem('refreshInterval') || '5';
+                document.getElementById('refreshInterval').value = refreshInterval;
+
+                // Apply dark mode if enabled
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                }
+            }
+
+            async function saveSettings() {
+                // Get form values
+                const emailNotifications = document.getElementById('emailNotifications').checked;
+                const emailAddress = document.getElementById('emailAddress').value;
+                const ordersPerPage = document.getElementById('ordersPerPage').value;
+                const darkMode = document.getElementById('darkMode').checked;
+                const refreshInterval = document.getElementById('refreshInterval').value;
+
+                // Save to localStorage
+                localStorage.setItem('emailNotifications', emailNotifications);
+                localStorage.setItem('emailAddress', emailAddress);
+                localStorage.setItem('ordersPerPage', ordersPerPage);
+                localStorage.setItem('darkMode', darkMode);
+                localStorage.setItem('refreshInterval', refreshInterval);
+
+                // Apply dark mode
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                alert.innerHTML = \`
+                    Settings saved successfully!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                \`;
+                document.querySelector('.row').insertAdjacentElement('afterbegin', alert);
+
+                // Remove alert after 3 seconds
+                setTimeout(() => alert.remove(), 3000);
+            }
+        </script>
+    `
+}) %>

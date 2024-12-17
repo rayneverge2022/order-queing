@@ -1,0 +1,209 @@
+<%- include('layout', {
+    title: 'Reports',
+    path: '/admin/reports',
+    style: `
+        <style>
+            .report-card {
+                transition: transform 0.2s;
+            }
+            .report-card:hover {
+                transform: translateY(-5px);
+            }
+            .chart-container {
+                position: relative;
+                height: 300px;
+                margin-bottom: 2rem;
+            }
+        </style>
+    `,
+    body: `
+        <div class="row g-4">
+            <!-- Summary Cards -->
+            <div class="col-md-4">
+                <div class="card report-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Orders</h5>
+                        <div id="dailyStats">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card report-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Weekly Orders</h5>
+                        <div id="weeklyStats">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card report-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Monthly Orders</h5>
+                        <div id="monthlyStats">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Status Distribution</h5>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Trends</h5>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Export Reports</h5>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary me-2" onclick="exportData('excel')">
+                                <i class="bi bi-file-earmark-excel"></i> Export to Excel
+                            </button>
+                            <button class="btn btn-info me-2" onclick="exportData('csv')">
+                                <i class="bi bi-file-earmark-text"></i> Export to CSV
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.print()">
+                                <i class="bi bi-printer"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    script: `
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            let statusChart;
+            let trendChart;
+
+            async function fetchReportData() {
+                try {
+                    const response = await fetch('/api/reports/summary');
+                    const data = await response.json();
+                    
+                    updateStatCards(data);
+                    updateCharts(data);
+                } catch (error) {
+                    console.error('Error fetching report data:', error);
+                }
+            }
+
+            function updateStatCards(data) {
+                document.getElementById('dailyStats').innerHTML = \`
+                    <p>Total: \${data.daily.total}</p>
+                    <p>Completed: \${data.daily.completed}</p>
+                    <p>In Progress: \${data.daily.inProgress}</p>
+                \`;
+
+                document.getElementById('weeklyStats').innerHTML = \`
+                    <p>Total: \${data.weekly.total}</p>
+                    <p>Completed: \${data.weekly.completed}</p>
+                    <p>In Progress: \${data.weekly.inProgress}</p>
+                \`;
+
+                document.getElementById('monthlyStats').innerHTML = \`
+                    <p>Total: \${data.monthly.total}</p>
+                    <p>Completed: \${data.monthly.completed}</p>
+                    <p>In Progress: \${data.monthly.inProgress}</p>
+                \`;
+            }
+
+            function updateCharts(data) {
+                // Status Distribution Chart
+                const statusCtx = document.getElementById('statusChart').getContext('2d');
+                if (statusChart) {
+                    statusChart.destroy();
+                }
+                statusChart = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(data.statusBreakdown),
+                        datasets: [{
+                            data: Object.values(data.statusBreakdown),
+                            backgroundColor: [
+                                '#ffd700',  // received
+                                '#87ceeb',  // printing
+                                '#98fb98',  // packaging
+                                '#90ee90'   // completed
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                // Trend Chart
+                const trendCtx = document.getElementById('trendChart').getContext('2d');
+                if (trendChart) {
+                    trendChart.destroy();
+                }
+                trendChart = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Daily', 'Weekly', 'Monthly'],
+                        datasets: [{
+                            label: 'Total Orders',
+                            data: [
+                                data.daily.total,
+                                data.weekly.total,
+                                data.monthly.total
+                            ],
+                            borderColor: '#4CAF50',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            async function exportData(format) {
+                try {
+                    const response = await fetch('/api/reports/export?format=' + format);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'order_report.' + format;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } catch (error) {
+                    console.error('Error exporting data:', error);
+                    alert('Error exporting data. Please try again.');
+                }
+            }
+
+            // Initial fetch
+            fetchReportData();
+            // Refresh data every minute
+            setInterval(fetchReportData, 60000);
+        </script>
+    `
+}) %>
