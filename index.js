@@ -6,7 +6,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Papa from 'papaparse';
 import ExcelJS from 'exceljs';
+import cookieParser from 'cookie-parser';
 import ordersRouter from './routes/api/orders.js';
+import settingsRouter from './routes/api/settings.js';
+import authRouter from './routes/api/auth.js';
+import publicRouter from './routes/api/public.js';
+import { requireAuth } from './middleware/auth.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -20,31 +25,43 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use(cookieParser());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// API Routes
-app.use('/api/orders', ordersRouter);
+// Auth Routes
+app.use('/api/auth', authRouter);
 
-// Routes
+// Public API Routes
+app.use('/api/public', publicRouter);
+
+// Protected API Routes
+app.use('/api/orders', requireAuth, ordersRouter);
+app.use('/api/settings', requireAuth, settingsRouter);
+
+// Public Routes
 app.get('/', (req, res) => {
-  res.render('client/index');
+  res.render('client/orders');
 });
 
-app.get('/admin', (req, res) => {
+app.get('/login', (req, res) => {
+  res.render('auth/login');
+});
+
+// Protected Routes
+app.get('/admin', requireAuth, (req, res) => {
   res.render('admin/index');
 });
 
-// Admin routes
-app.get('/admin/dashboard', (req, res) => {
+app.get('/admin/dashboard', requireAuth, (req, res) => {
   res.render('admin/dashboard');
 });
 
-app.get('/admin/reports', (req, res) => {
+app.get('/admin/reports', requireAuth, (req, res) => {
   res.render('admin/reports');
 });
 
-app.get('/admin/settings', (req, res) => {
+app.get('/admin/settings', requireAuth, (req, res) => {
   res.render('admin/settings');
 });
 

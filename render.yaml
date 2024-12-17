@@ -1,13 +1,16 @@
 services:
   - type: web
     name: job-order-queue
-    env: node
-    buildCommand: npm install
-    startCommand: node index.js
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: docker build -t job-order-queue .
+    startCommand: npm start
     envVars:
-      - key: DATABASE_URL
-        value: https://queing-system-rayneverge2021.turso.io
-      - key: DATABASE_AUTH_TOKEN
-        sync: false
+      - key: NODE_ENV
+        value: production
       - key: PORT
-        value: 3000
+        value: 10000
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
