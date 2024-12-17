@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Papa from 'papaparse';
 import ExcelJS from 'exceljs';
+import ordersRouter from './routes/api/orders.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +22,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+// API Routes
+app.use('/api/orders', ordersRouter);
 
 // Routes
 app.get('/', (req, res) => {
@@ -42,127 +46,6 @@ app.get('/admin/reports', (req, res) => {
 
 app.get('/admin/settings', (req, res) => {
   res.render('admin/settings');
-});
-
-// API Routes
-app.get('/api/orders', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('job_orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching orders:', error);
-      throw error;
-    }
-
-    res.json(data || []);
-  } catch (error) {
-    console.error('Error in /api/orders:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/orders', async (req, res) => {
-  try {
-    const { customerName, projectDetails, status } = req.body;
-    
-    const { data, error } = await supabase
-      .from('job_orders')
-      .insert([
-        { 
-          customer_name: customerName,
-          project_details: projectDetails,
-          status: status || 'received'
-        }
-      ])
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error creating order:', error);
-      throw error;
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error('Error in POST /api/orders:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.put('/api/orders/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { customerName, projectDetails, status } = req.body;
-    
-    const { data, error } = await supabase
-      .from('job_orders')
-      .update({ 
-        customer_name: customerName,
-        project_details: projectDetails,
-        status: status
-      })
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating order:', error);
-      throw error;
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error('Error in PUT /api/orders/:id:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.patch('/api/orders/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    
-    const { data, error } = await supabase
-      .from('job_orders')
-      .update({ status })
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating order status:', error);
-      throw error;
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error('Error in PATCH /api/orders/:id:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/api/orders/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const { error } = await supabase
-      .from('job_orders')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error deleting order:', error);
-      throw error;
-    }
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error in DELETE /api/orders/:id:', error);
-    res.status(500).json({ error: error.message });
-  }
 });
 
 // Reporting Endpoints
