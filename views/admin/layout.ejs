@@ -8,157 +8,131 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --sidebar-width: 250px;
-            --header-height: 60px;
-            --sidebar-collapsed-width: 70px;
-        }
-
-        body {
+        /* Sidebar Styles */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        .sidebar {
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #343a40;
+            color: #fff;
+            transition: all 0.3s;
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
-            width: var(--sidebar-width);
-            background: #2c3e50;
+            z-index: 999;
+        }
+
+        #sidebar.active {
+            margin-left: -250px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+            top: 0;
+            left: 0;
+        }
+
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        #content {
+            width: 100%;
+            min-height: 100vh;
+            transition: all 0.3s;
+            margin-left: 250px;
+        }
+
+        #sidebarCollapse {
+            background: transparent;
+            border: none;
             color: white;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            padding: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
         }
 
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+
+            #content {
+                margin-left: 0;
+            }
+
+            #content.active {
+                margin-left: 0;
+            }
+
+            #sidebarCollapse {
+                display: inline-block !important;
+            }
+
+            .navbar-brand {
+                margin-left: 0 !important;
+            }
         }
 
+        /* Sidebar Menu Styles */
         .sidebar-header {
-            padding: 1rem;
-            background: #1a2634;
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .sidebar-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            padding: 20px;
+            background: #2c3136;
         }
 
         .sidebar-menu {
             padding: 0;
             list-style: none;
-            margin: 0;
         }
 
-        .sidebar-menu li {
-            width: 100%;
-        }
-
-        .sidebar-menu a {
-            padding: 0.8rem 1rem;
-            color: #ecf0f1;
+        .sidebar-menu li a {
+            padding: 15px 20px;
+            display: block;
+            color: #fff;
             text-decoration: none;
-            display: flex;
-            align-items: center;
             transition: all 0.3s;
-            white-space: nowrap;
-            overflow: hidden;
         }
 
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: #34495e;
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background: #2c3136;
             color: #fff;
         }
 
-        .sidebar-menu i {
-            width: 1.5rem;
-            text-align: center;
-            margin-right: 1rem;
-            font-size: 1.1rem;
+        .sidebar-menu li a i {
+            margin-right: 10px;
         }
 
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 1rem;
-            min-height: 100vh;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
+        /* Navbar styles */
+        .navbar {
+            padding: 15px;
+            background: #343a40;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .main-content.expanded {
-            margin-left: var(--sidebar-collapsed-width);
-        }
-
-        .top-bar {
-            background: white;
-            padding: 0.5rem 1rem;
-            margin: -1rem -1rem 1rem -1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: var(--header-height);
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
-
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #2c3e50;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: var(--sidebar-width);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .card {
-                margin-bottom: 1rem;
-            }
-
-            .table-responsive {
-                margin-bottom: 1rem;
-            }
-
-            .btn-group {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-
-            .btn-group .btn {
-                flex: 1;
-                min-width: 120px;
-            }
+        .navbar-brand {
+            margin-left: 15px;
+            font-size: 1.2rem;
         }
 
         /* Dark mode styles */
@@ -207,78 +181,126 @@
     <%- style %>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3>Admin Panel</h3>
-            <button class="mobile-menu-toggle d-md-none" onclick="toggleSidebar()">
-                <i class="bi bi-x"></i>
-            </button>
-        </div>
-        <ul class="sidebar-menu">
-            <!-- <li>
-                <a href="/admin/dashboard" class="<%= path === '/admin/dashboard' ? 'active' : '' %>">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-            </li> -->
-            <li>
-                <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
-                    <i class="bi bi-list-check"></i> Orders
-                </a>
-            </li>
-            <li>
-                <a href="/admin/reports" class="<%= path === '/admin/reports' ? 'active' : '' %>">
-                    <i class="bi bi-graph-up"></i> Reports
-                </a>
-            </li>
-            <li>
-                <a href="/admin/settings" class="<%= path === '/admin/settings' ? 'active' : '' %>">
-                    <i class="bi bi-gear"></i> Settings
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="top-bar">
-            <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            <h4 class="mb-0"><%= title %></h4>
-            <div class="d-flex align-items-center">
-                <button class="btn btn-link" onclick="toggleDarkMode()">
-                    <i class="bi bi-moon-stars"></i>
-                </button>
-                <div class="dropdown">
-                    <button class="btn btn-link dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/admin/settings">Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
-                    </ul>
-                </div>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
             </div>
-        </div>
-        <div class="container-fluid px-4">
-            <%- body %>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
+                        <i class="bi bi-list-check"></i> Orders
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/reports" class="<%= path === '/admin/reports' ? 'active' : '' %>">
+                        <i class="bi bi-graph-up"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/settings" class="<%= path === '/admin/settings' ? 'active' : '' %>">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Overlay -->
+        <div class="overlay"></div>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <span class="navbar-brand ms-3"><%= title %></span>
+                    <div class="ms-auto d-flex align-items-center">
+                        <button onclick="toggleDarkMode()" class="btn btn-link text-white me-3">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+                        <button onclick="logout()" class="btn btn-outline-light">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <%- body %>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Toggle sidebar
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const sidebarCollapse = document.getElementById('sidebarCollapse');
+            const overlay = document.querySelector('.overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                content.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            sidebarCollapse.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleSidebar();
+            });
+
+            overlay.addEventListener('click', function() {
+                toggleSidebar();
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    content.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+
+            // Apply dark mode on load if enabled
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                updateThemeIcon();
+            }
+        });
 
         // Toggle dark mode
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDarkMode = document.body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isDarkMode);
+            updateThemeIcon();
+        }
+
+        // Update theme icon based on current mode
+        function updateThemeIcon() {
+            const themeIcon = document.querySelector('.bi-moon-stars');
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+            } else {
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon-stars');
+            }
         }
 
         // Logout function
@@ -298,32 +320,6 @@
                 alert('Failed to logout. Please try again.');
             }
         }
-
-        // Apply dark mode on load if enabled
-        document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.body.classList.add('dark-mode');
-            }
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                const sidebar = document.getElementById('sidebar');
-                const toggleBtn = document.querySelector('.mobile-menu-toggle');
-                if (window.innerWidth <= 768 && 
-                    !sidebar.contains(e.target) && 
-                    !toggleBtn.contains(e.target) &&
-                    sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
-                }
-            });
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                document.getElementById('sidebar').classList.remove('active');
-            }
-        });
     </script>
     <%- script %>
 </body>

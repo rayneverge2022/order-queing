@@ -77,14 +77,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fetch and display orders
+        let refreshInterval;
+
         async function fetchOrders() {
             try {
                 const response = await fetch('/api/public/orders');
+                if (!response.ok) throw new Error('Failed to fetch orders');
+                
                 const orders = await response.json();
                 displayOrders(orders);
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error fetching orders:', error);
+                const container = document.getElementById('ordersContainer');
+                container.innerHTML = '<div class="alert alert-danger">Error loading orders. Please try again later.</div>';
             }
         }
 
@@ -155,8 +160,20 @@
             return colors[status] || 'secondary';
         }
 
-        // Load orders when page loads
-        document.addEventListener('DOMContentLoaded', fetchOrders);
+        // Start auto-refresh when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchOrders(); // Initial fetch
+            
+            // Set up auto-refresh every 2 seconds
+            refreshInterval = setInterval(fetchOrders, 2000);
+        });
+
+        // Clean up interval when leaving the page
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
     </script>
 </body>
 </html>
