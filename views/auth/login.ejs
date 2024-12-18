@@ -78,16 +78,20 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ email, password })
                 });
 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.message || 'Failed to login');
+                    throw new Error(error.error || 'Failed to login');
                 }
 
+                const data = await response.json();
+                console.log('Login successful:', data);
                 window.location.href = '/admin';
             } catch (error) {
+                console.error('Login error:', error);
                 alert(error.message);
             }
         });
