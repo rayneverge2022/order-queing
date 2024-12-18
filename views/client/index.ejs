@@ -6,10 +6,28 @@
     <title>Job Order Queue - Client View</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .status-received { background-color: #FFA500; }
-        .status-printing { background-color: #FFD580; }
-        .status-packaging { background-color: #FFC0CB; }
-        .status-completed { background-color: #90EE90; }
+        .order-card {
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            color: #000;
+        }
+        
+        .status-received { background-color: #FFA500; } /* Orange */
+        .status-settings { background-color: #FFD580; } /* Light Orange */
+        .status-printing { background-color: #FFB6C1; } /* Pink */
+        .status-releasing { background-color: #90EE90; } /* Light Green */
+        .status-billing { background-color: #228B22; color: white !important; } /* Green with white text */
     </style>
 </head>
 <body class="bg-gray-100">
@@ -42,7 +60,7 @@
 
                 orders.forEach(order => {
                     const orderElement = document.createElement('div');
-                    orderElement.className = `p-4 rounded-lg mb-4 status-${order.status}`;
+                    orderElement.className = `order-card`;
                     
                     let removeButton = '';
                     if (order.status === 'completed') {
@@ -56,9 +74,12 @@
                     orderElement.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <div class="font-semibold">Customer: ${order.customer_name}</div>
+                                <div class="font-semibold">${order.customer_name}</div>
+                                <div class="text-sm">Order ID: ${order.id}</div>
                                 <div class="text-sm">Project: ${order.project_details}</div>
-                                <div class="text-sm mt-2">Status: ${order.status}</div>
+                                <div class="mt-2">
+                                    <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                                </div>
                                 <div class="text-xs text-gray-500 mt-1">Created: ${new Date(order.created_at).toLocaleString()}</div>
                                 ${removeButton}
                             </div>
