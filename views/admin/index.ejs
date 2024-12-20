@@ -191,6 +191,7 @@
                                         <th>Customer</th>
                                         <th>Details</th>
                                         <th>Status</th>
+                                        <th>Hide</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -278,16 +279,16 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Delete Order</h5>
+                            <h5 class="modal-title">Hide Order</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to delete this order? This action cannot be undone.</p>
+                            <p>Are you sure you want to hide this order?</p>
                             <input type="hidden" id="deleteOrderId">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-danger" onclick="deleteOrder()">Delete</button>
+                            <button type="button" class="btn btn-danger" onclick="hideOrder()">Hide</button>
                         </div>
                     </div>
                 </div>
@@ -308,10 +309,10 @@
                         </button>
                     \`);
 
-                    // Delete button
+                    // Hide button
                     buttons.push(\`
                         <button class="btn btn-sm btn-danger" onclick="openDeleteModal('\${orderId}')">
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-eye-slash"></i>
                         </button>
                     \`);
 
@@ -352,6 +353,7 @@
                                 <td class="mobile-text-small">\${order.customer_name}</td>
                                 <td class="mobile-text-small">\${order.project_details}</td>
                                 <td><span class="status-badge status-\${order.status.toLowerCase()}">\${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
+                                <td class="mobile-text-small">\${order.is_hide ? 'True' : 'False'}</td>
                                 <td>\${getActionButtons(order.status.toLowerCase(), order.id)}</td>
                             </tr>
                         \`).join('');
@@ -454,21 +456,29 @@
                     new bootstrap.Modal(document.getElementById('deleteOrderModal')).show();
                 }
 
-                async function deleteOrder() {
+                async function hideOrder() {
                     const orderId = document.getElementById('deleteOrderId').value;
 
                     try {
-                        const response = await fetch(\`/api/orders/\${orderId}\`, {
-                            method: 'DELETE'
+                        const response = await fetch('/api/orders/' + orderId, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ is_hide: true })
                         });
 
-                        if (!response.ok) throw new Error('Failed to delete order');
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Failed to hide order');
+                        }
 
                         bootstrap.Modal.getInstance(document.getElementById('deleteOrderModal')).hide();
                         loadOrders();
                     } catch (error) {
-                        console.error('Error deleting order:', error);
-                        alert('Failed to delete order. Please try again.');
+                        console.error('Error hiding order:', error);
+                        alert(error.message || 'Failed to hide order. Please try again.');
                     }
                 }
 
@@ -488,6 +498,25 @@
                     } catch (error) {
                         console.error('Error updating status:', error);
                         alert('Failed to update order status. Please try again.');
+                    }
+                }
+
+                async function updateShowStatus(orderId, isShow) {
+                    try {
+                        const response = await fetch(\`/api/orders/\${orderId}\`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ isShow: isShow })
+                        });
+
+                        if (!response.ok) throw new Error('Failed to update show status');
+
+                        loadOrders();
+                    } catch (error) {
+                        console.error('Error updating show status:', error);
+                        alert('Failed to update order visibility. Please try again.');
                     }
                 }
 

@@ -9,6 +9,7 @@ router.get('/', async (req, res) => {
         const { data, error } = await supabase
             .from('job_orders')
             .select('*')
+            .eq('is_hide', false)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -97,22 +98,28 @@ router.put('/:id', async (req, res) => {
 // Update order status
 router.patch('/:id', async (req, res) => {
     try {
-        const { status } = req.body;
-        const { data, error } = await supabase
-            .from('job_orders')
-            .update({ status })
-            .eq('id', req.params.id)
-            .select()
-            .single();
+        const { status, is_hide } = req.body;
+        const updateData = {};
+        
+        // Add fields to update only if they are provided
+        if (status !== undefined) updateData.status = status;
+        if (is_hide !== undefined) updateData.is_hide = is_hide;
 
-        if (error) throw error;
-        if (!data) {
-            return res.status(404).json({ error: 'Order not found' });
+        const { error } = await supabase
+            .from('job_orders')
+            .update(updateData)
+            .eq('id', req.params.id);
+
+        if (error) {
+            console.error('Update error:', error);
+            throw error;
         }
-        res.json(data);
+
+        // Just send success response without trying to fetch the updated record
+        res.json({ success: true });
     } catch (error) {
-        console.error('Error updating order status:', error);
-        res.status(500).json({ error: 'Failed to update order status' });
+        console.error('Error updating order:', error);
+        res.status(500).json({ error: 'Failed to update order', details: error.message });
     }
 });
 
