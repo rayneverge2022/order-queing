@@ -75,6 +75,37 @@
                             <i class="fas fa-plus"></i> Create Order
                         </button>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchJobOrder" placeholder="Search Job Order ID" onkeyup="applyFilters()">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchCustomer" placeholder="Search Customer Name" onkeyup="applyFilters()">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="input-group">
+                                <select class="form-select" id="sortBy" onchange="applyFilters()">
+                                    <option value="">Sort By...</option>
+                                    <option value="job_order_id">Job Order ID</option>
+                                    <option value="customer_name">Customer Name</option>
+                                    <option value="created_at">Date Created</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="sortDirection" onclick="toggleSortDirection()">
+                                    <i class="fas fa-sort-amount-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -90,6 +121,18 @@
                             </thead>
                             <tbody id="orderTableBody"></tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span id="totalEntries"></span> entries
+                        </div>
+                        <div>
+                            <select class="form-select" id="rowsPerPage" onchange="changeRowsPerPage()">
+                                <option value="20">20 rows per page</option>
+                                <option value="50">50 rows per page</option>
+                                <option value="100">100 rows per page</option>
+                            </select>
+                        </div>
                     </div>
                     <nav>
                         <ul id="pagination" class="pagination justify-content-center"></ul>
@@ -201,59 +244,122 @@
         script: `
             <script>
                 let currentPage = 1;
-                const ordersPerPage = 20;
+                let ordersPerPage = 20;
+                let allOrders = [];
+                let sortDirection = 'desc';
+
+                function applyFilters() {
+                    const jobOrderSearch = document.getElementById('searchJobOrder').value.toLowerCase().trim();
+                    const customerSearch = document.getElementById('searchCustomer').value.toLowerCase().trim();
+                    const sortBy = document.getElementById('sortBy').value;
+
+                    let filteredOrders = [...allOrders];
+
+                    // Apply search filters
+                    if (jobOrderSearch) {
+                        filteredOrders = filteredOrders.filter(order => 
+                            (order.job_order_id || '').toLowerCase().includes(jobOrderSearch)
+                        );
+                    }
+
+                    if (customerSearch) {
+                        filteredOrders = filteredOrders.filter(order => 
+                            order.customer_name.toLowerCase().includes(customerSearch)
+                        );
+                    }
+
+                    // Apply sorting
+                    if (sortBy) {
+                        filteredOrders.sort((a, b) => {
+                            let valueA = (a[sortBy] || '').toString().toLowerCase();
+                            let valueB = (b[sortBy] || '').toString().toLowerCase();
+                            
+                            if (sortBy === 'created_at') {
+                                valueA = new Date(valueA).getTime();
+                                valueB = new Date(valueB).getTime();
+                            }
+
+                            if (sortDirection === 'asc') {
+                                return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+                            } else {
+                                return valueA > valueB ? -1 : valueA < valueB ? 1 : 0;
+                            }
+                        });
+                    }
+
+                    displayOrders(filteredOrders);
+                }
+
+                function toggleSortDirection() {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    const icon = document.querySelector('#sortDirection i');
+                    icon.className = sortDirection === 'asc' ? 'fas fa-sort-amount-up' : 'fas fa-sort-amount-down';
+                    applyFilters();
+                }
+
+                function changeRowsPerPage() {
+                    ordersPerPage = parseInt(document.getElementById('rowsPerPage').value);
+                    currentPage = 1;
+                    applyFilters();
+                }
+
+                function displayOrders(orders) {
+                    document.getElementById('totalEntries').textContent = orders.length;
+                    
+                    const start = (currentPage - 1) * ordersPerPage;
+                    const end = start + ordersPerPage;
+                    const pageOrders = orders.slice(start, end);
+                    
+                    const tbody = document.getElementById('orderTableBody');
+                    tbody.innerHTML = pageOrders.map(order => \`
+                        <tr>
+                            <td class="mobile-text-small">#\${order.id}</td>
+                            <td class="mobile-text-small">\${order.job_order_id || '-'}</td>
+                            <td class="mobile-text-small">\${order.customer_name}</td>
+                            <td class="mobile-text-small">\${order.project_details}</td>
+                            <td>
+                                <span class="status-badge status-\${order.status.toLowerCase()}">\${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                                \${order.is_void ? '<span class="badge bg-danger ms-1">Void</span>' : ''}
+                            </td>
+                            <td class="mobile-text-small">\${order.is_hide ? 'True' : 'False'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="openEditModal('\${order.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="openDeleteModal('\${order.id}')">
+                                    <i class="fas fa-eye-slash"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="openVoidModal('\${order.id}')">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                <div class="dropdown d-inline">
+                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Status
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'settings')">Settings</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'printing')">Printing</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'finishing')">Finishing</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'releasing')">Releasing</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'billing')">Billing</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'completed')">Completed</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    \`).join('');
+                    
+                    updatePagination(Math.ceil(orders.length / ordersPerPage));
+                }
 
                 async function loadOrders() {
                     try {
                         const response = await fetch('/api/orders');
                         if (!response.ok) throw new Error('Failed to fetch orders');
                         
-                        const orders = await response.json();
-                        const start = (currentPage - 1) * ordersPerPage;
-                        const end = start + ordersPerPage;
-                        const pageOrders = orders.slice(start, end);
-                        
-                        const tbody = document.getElementById('orderTableBody');
-                        tbody.innerHTML = pageOrders.map(order => \`
-                            <tr>
-                                <td class="mobile-text-small">#\${order.id}</td>
-                                <td class="mobile-text-small">\${order.job_order_id || '-'}</td>
-                                <td class="mobile-text-small">\${order.customer_name}</td>
-                                <td class="mobile-text-small">\${order.project_details}</td>
-                                <td>
-                                    <span class="status-badge status-\${order.status.toLowerCase()}">\${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
-                                    \${order.is_void ? '<span class="badge bg-danger ms-1">Void</span>' : ''}
-                                </td>
-                                <td class="mobile-text-small">\${order.is_hide ? 'True' : 'False'}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" onclick="openEditModal('\${order.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="openDeleteModal('\${order.id}')">
-                                        <i class="fas fa-eye-slash"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-warning" onclick="openVoidModal('\${order.id}')">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                    <div class="dropdown d-inline">
-                                        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            Status
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'settings')">Settings</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'printing')">Printing</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'finishing')">Finishing</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'releasing')">Releasing</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'billing')">Billing</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'completed')">Completed</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        \`).join('');
-                        
-                        updatePagination(Math.ceil(orders.length / ordersPerPage));
+                        allOrders = await response.json();
+                        applyFilters();
                     } catch (error) {
                         console.error('Error loading orders:', error);
                         alert('Failed to load orders. Please try again.');
@@ -485,7 +591,7 @@
                 function changePage(page) {
                     if (page >= 1) {
                         currentPage = page;
-                        loadOrders();
+                        applyFilters();
                     }
                 }
 
