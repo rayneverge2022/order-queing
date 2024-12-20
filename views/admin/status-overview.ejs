@@ -171,6 +171,12 @@
                                                     <th>Customer</th>
                                                     <th>Details</th>
                                                     <th>Created At</th>
+                                                    <th>Settings Time</th>
+                                                    <th>Printing Time</th>
+                                                    <th>Finishing Time</th>
+                                                    <th>Releasing Time</th>
+                                                    <th>Billing Time</th>
+                                                    <th>Completed Time</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -212,6 +218,7 @@
                                         <th>Customer</th>
                                         <th>Details</th>
                                         <th>Created At</th>
+                                        <th>\${status.charAt(0).toUpperCase() + status.slice(1)} Time</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -236,6 +243,11 @@
                     minute: '2-digit'
                 };
                 return new Date(date).toLocaleString('en-US', options);
+            }
+
+            // Get formatted timestamp or default value
+            function getFormattedTimestamp(order, field) {
+                return order[field] ? formatDate(order[field]) : '-';
             }
 
             // Update tables with orders
@@ -273,6 +285,7 @@
                                 <td>\${order.customer_name}</td>
                                 <td>\${order.project_details}</td>
                                 <td>\${formatDate(order.created_at)}</td>
+                                <td>\${getFormattedTimestamp(order, \`\${status}_timestamp\`)}</td>
                             </tr>
                         \`).join('');
                     }
@@ -303,7 +316,14 @@
 
                     // Convert orders to CSV or prepare for Excel
                     let data;
-                    const headers = ['ID', 'Job Order ID', 'Customer', 'Details', 'Created At'];
+                    const headers = [
+                        'ID', 
+                        'Job Order ID', 
+                        'Customer', 
+                        'Details', 
+                        'Created At',
+                        \`\${status.charAt(0).toUpperCase() + status.slice(1)} Time\`
+                    ];
                     
                     if (format === 'csv') {
                         // Create CSV content
@@ -314,7 +334,8 @@
                                 order.job_order_id || '',
                                 order.customer_name,
                                 order.project_details,
-                                formatDate(order.created_at)
+                                formatDate(order.created_at),
+                                getFormattedTimestamp(order, \`\${status}_timestamp\`)
                             ].join(','));
                         });
                         data = data.join('\\n');
