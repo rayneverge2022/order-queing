@@ -14,6 +14,26 @@
                 height: 300px;
                 margin-bottom: 2rem;
             }
+            .status-counts {
+                margin-top: 1rem;
+                padding: 0.5rem;
+                background-color: #f8f9fa;
+                border-radius: 0.25rem;
+            }
+            .status-count-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.25rem 0;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .status-count-item:last-child {
+                border-bottom: none;
+            }
+            .date-range {
+                font-size: 0.9rem;
+                color: #6c757d;
+                margin-bottom: 1rem;
+            }
         </style>
     `,
     body: `
@@ -23,7 +43,9 @@
                 <div class="card report-card">
                     <div class="card-body">
                         <h5 class="card-title">Daily Orders</h5>
+                        <div class="date-range" id="dailyDateRange"></div>
                         <div id="dailyStats">Loading...</div>
+                        <div class="status-counts" id="dailyStatusCounts"></div>
                     </div>
                 </div>
             </div>
@@ -31,7 +53,9 @@
                 <div class="card report-card">
                     <div class="card-body">
                         <h5 class="card-title">Weekly Orders</h5>
+                        <div class="date-range" id="weeklyDateRange"></div>
                         <div id="weeklyStats">Loading...</div>
+                        <div class="status-counts" id="weeklyStatusCounts"></div>
                     </div>
                 </div>
             </div>
@@ -39,7 +63,9 @@
                 <div class="card report-card">
                     <div class="card-body">
                         <h5 class="card-title">Monthly Orders</h5>
+                        <div class="date-range" id="monthlyDateRange"></div>
                         <div id="monthlyStats">Loading...</div>
+                        <div class="status-counts" id="monthlyStatusCounts"></div>
                     </div>
                 </div>
             </div>
@@ -93,12 +119,42 @@
             let statusChart;
             let trendChart;
 
+            function formatDate(date) {
+                return new Intl.DateTimeFormat('en-NZ', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }).format(date);
+            }
+
+            function updateDateRanges() {
+                const now = new Date();
+                
+                // Daily (today)
+                const dailyStart = new Date(now);
+                document.getElementById('dailyDateRange').textContent = formatDate(dailyStart);
+
+                // Weekly (last 7 days)
+                const weeklyStart = new Date(now);
+                weeklyStart.setDate(weeklyStart.getDate() - 6);
+                document.getElementById('weeklyDateRange').textContent = 
+                    \`\${formatDate(weeklyStart)} - \${formatDate(now)}\`;
+
+                // Monthly (last 30 days)
+                const monthlyStart = new Date(now);
+                monthlyStart.setDate(monthlyStart.getDate() - 29);
+                document.getElementById('monthlyDateRange').textContent = 
+                    \`\${formatDate(monthlyStart)} - \${formatDate(now)}\`;
+            }
+
             async function fetchReportData() {
                 try {
                     const response = await fetch('/api/reports/summary');
                     const data = await response.json();
                     
+                    updateDateRanges();
                     updateStatCards(data);
+                    updateStatusCounts(data);
                     updateCharts(data);
                 } catch (error) {
                     console.error('Error fetching report data:', error);
@@ -125,6 +181,22 @@
                 \`;
             }
 
+            function updateStatusCounts(data) {
+                const periods = ['daily', 'weekly', 'monthly'];
+                const statuses = ['received', 'settings', 'printing', 'finishing', 'releasing', 'billing', 'completed'];
+
+                periods.forEach(period => {
+                    const counts = data[period].statusCounts;
+                    const html = statuses.map(status => \`
+                        <div class="status-count-item">
+                            <span class="text-capitalize">\${status}:</span>
+                            <span class="fw-bold">\${counts[status]}</span>
+                        </div>
+                    \`).join('');
+                    document.getElementById(\`\${period}StatusCounts\`).innerHTML = html;
+                });
+            }
+
             function updateCharts(data) {
                 // Status Distribution Chart
                 const statusCtx = document.getElementById('statusChart').getContext('2d');
@@ -138,16 +210,24 @@
                         datasets: [{
                             data: Object.values(data.statusBreakdown),
                             backgroundColor: [
-                                '#ffd700',  // received
-                                '#87ceeb',  // printing
-                                '#98fb98',  // packaging
-                                '#90ee90'   // completed
+                                '#FFA500', // received
+                                '#FFD580', // settings
+                                '#FFB6C1', // printing
+                                '#9370DB', // finishing
+                                '#90EE90', // releasing
+                                '#228B22', // billing
+                                '#4CAF50'  // completed
                             ]
                         }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
                     }
                 });
 

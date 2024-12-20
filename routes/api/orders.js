@@ -10,6 +10,7 @@ router.get('/', async (req, res) => {
             .from('job_orders')
             .select('*')
             .eq('is_hide', false)
+            .eq('is_void', false)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -98,12 +99,13 @@ router.put('/:id', async (req, res) => {
 // Update order status
 router.patch('/:id', async (req, res) => {
     try {
-        const { status, is_hide } = req.body;
+        const { status, is_hide, is_void } = req.body;
         const updateData = {};
         
         // Add fields to update only if they are provided
         if (status !== undefined) updateData.status = status;
         if (is_hide !== undefined) updateData.is_hide = is_hide;
+        if (is_void !== undefined) updateData.is_void = is_void;
 
         const { error } = await supabase
             .from('job_orders')
@@ -115,7 +117,7 @@ router.patch('/:id', async (req, res) => {
             throw error;
         }
 
-        // Just send success response without trying to fetch the updated record
+        // Just send success response
         res.json({ success: true });
     } catch (error) {
         console.error('Error updating order:', error);

@@ -11,6 +11,7 @@ import ordersRouter from './routes/api/orders.js';
 import settingsRouter from './routes/api/settings.js';
 import authRouter from './routes/api/auth.js';
 import publicRouter from './routes/api/public.js';
+import reportsRouter from './routes/api/reports.js';
 import { requireAuth } from './middleware/auth.js';
 
 dotenv.config();
@@ -72,6 +73,7 @@ app.use('/api/public', publicRouter);
 // Protected API Routes
 app.use('/api/orders', requireAuth, ordersRouter);
 app.use('/api/settings', requireAuth, settingsRouter);
+app.use('/api/reports', requireAuth, reportsRouter);
 
 // Public Routes
 app.get('/', (req, res) => {

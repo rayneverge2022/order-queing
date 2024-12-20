@@ -6,109 +6,6 @@
     <title>Admin - Order Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #000;
-        }
-        .status-received { background-color: #FFA500; } /* Orange */
-        .status-settings { background-color: #FFD580; } /* Light Orange */
-        .status-printing { background-color: #FFB6C1; } /* Pink */
-        .status-releasing { background-color: #90EE90; } /* Light Green */
-        .status-billing { background-color: #228B22; color: white !important; } /* Green with white text */
-        .status-finishing { background-color: #9370DB; color: white !important; } /* Purple */
-
-        .table-container {
-            height: auto;
-            overflow: visible !important;
-        }
-
-        .table-responsive {
-            overflow: visible !important;
-        }
-
-        .dropdown-menu {
-            padding: 0.5rem 0;
-            border: 1px solid rgba(0,0,0,.15);
-            border-radius: 0.375rem;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
-            overflow: visible !important;
-        }
-
-        .dropdown-item {
-            padding: 0.5rem 1.5rem;
-            font-size: 0.875rem;
-            color: #212529;
-            transition: background-color 0.15s ease-in-out;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
-            color: #16181b;
-        }
-
-        .dropdown-item:active {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .status-dropdown .btn {
-            min-width: 100px;
-            text-align: left;
-            position: relative;
-            padding-right: 2rem;
-        }
-
-        .status-dropdown .btn::after {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        @media (max-width: 768px) {
-            .table-responsive {
-                font-size: 0.9rem;
-            }
-            
-            .status-badge {
-                font-size: 0.7em;
-                padding: 3px 8px;
-            }
-
-            .action-buttons {
-                display: flex;
-                flex-direction: column;
-                gap: 0.3rem;
-            }
-
-            .action-buttons .btn {
-                padding: 0.2rem 0.5rem;
-                font-size: 0.8rem;
-            }
-
-            .mobile-stack {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .mobile-stack > * {
-                margin-bottom: 0.5rem;
-            }
-
-            .mobile-scroll {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .mobile-text-small {
-                font-size: 0.8rem;
-            }
-        }
-    </style>
 </head>
 <body>
     <%- include('layout', {
@@ -123,50 +20,47 @@
                     font-weight: bold;
                     color: #000;
                 }
-                .status-received { background-color: #FFA500; } /* Orange */
-                .status-settings { background-color: #FFD580; } /* Light Orange */
-                .status-printing { background-color: #FFB6C1; } /* Pink */
-                .status-releasing { background-color: #90EE90; } /* Light Green */
-                .status-billing { background-color: #228B22; color: white !important; } /* Green with white text */
-                .status-finishing { background-color: #9370DB; color: white !important; } /* Purple */
+                .status-received { background-color: #FFA500; }
+                .status-settings { background-color: #FFD580; }
+                .status-printing { background-color: #FFB6C1; }
+                .status-releasing { background-color: #90EE90; }
+                .status-billing { background-color: #228B22; color: white !important; }
+                .status-finishing { background-color: #9370DB; color: white !important; }
+                .status-void { background-color: #DC3545; color: white !important; }
+                .status-completed { background-color: #32CD32; color: white !important; }
+
+                .table-container {
+                    height: auto;
+                    overflow: visible !important;
+                }
+
+                .table-responsive {
+                    overflow: visible !important;
+                }
+
+                .dropdown-menu {
+                    padding: 0.5rem 0;
+                    border: 1px solid rgba(0,0,0,.15);
+                    border-radius: 0.375rem;
+                    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+                    overflow: visible !important;
+                }
+
+                .dropdown-item {
+                    padding: 0.5rem 1.5rem;
+                    font-size: 0.875rem;
+                    color: #212529;
+                    transition: background-color 0.15s ease-in-out;
+                }
+
+                .dropdown-item:hover {
+                    background-color: #f8f9fa;
+                    color: #16181b;
+                }
 
                 @media (max-width: 768px) {
-                    .table-responsive {
-                        font-size: 0.9rem;
-                    }
-                    
-                    .status-badge {
-                        font-size: 0.7em;
-                        padding: 3px 8px;
-                    }
-
-                    .action-buttons {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 0.3rem;
-                    }
-
-                    .action-buttons .btn {
-                        padding: 0.2rem 0.5rem;
-                        font-size: 0.8rem;
-                    }
-
-                    .mobile-stack {
-                        display: flex;
-                        flex-direction: column;
-                    }
-
-                    .mobile-stack > * {
-                        margin-bottom: 0.5rem;
-                    }
-
-                    .mobile-scroll {
-                        overflow-x: auto;
-                        -webkit-overflow-scrolling: touch;
-                    }
-
                     .mobile-text-small {
-                        font-size: 0.8rem;
+                        font-size: 0.8em;
                     }
                 }
             </style>
@@ -177,34 +71,28 @@
                 <div class="card-body">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
                         <h5 class="card-title mb-0">Order List</h5>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal">
                             <i class="fas fa-plus"></i> Create Order
                         </button>
                     </div>
-                    <div class="table-container">
-                        <div class="table-responsive mobile-scroll">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Job Order ID</th>
-                                        <th>Customer</th>
-                                        <th>Details</th>
-                                        <th>Status</th>
-                                        <th>Hide</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="orderTableBody">
-                                    <!-- Orders will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Job Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Details</th>
+                                    <th>Status</th>
+                                    <th>Hide</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTableBody"></tbody>
+                        </table>
                     </div>
-                    <nav aria-label="Page navigation" class="mt-3">
-                        <ul class="pagination justify-content-center flex-wrap" id="pagination">
-                            <!-- Pagination will be loaded here -->
-                        </ul>
+                    <nav>
+                        <ul id="pagination" class="pagination justify-content-center"></ul>
                     </nav>
                 </div>
             </div>
@@ -214,24 +102,22 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Create New Order</h5>
+                            <h5 class="modal-title">Create Order</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="createOrderForm">
-                                <div class="mb-3">
-                                    <label for="jobOrderId" class="form-label">Job Order ID</label>
-                                    <input type="text" class="form-control" id="jobOrderId" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="customerName" class="form-label">Customer Name</label>
-                                    <input type="text" class="form-control" id="customerName" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="projectDetails" class="form-label">Project Details</label>
-                                    <textarea class="form-control" id="projectDetails" rows="3" required></textarea>
-                                </div>
-                            </form>
+                            <div class="mb-3">
+                                <label for="jobOrderId" class="form-label">Job Order ID</label>
+                                <input type="text" class="form-control" id="jobOrderId">
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Customer Name</label>
+                                <input type="text" class="form-control" id="customerName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="projectDetails" class="form-label">Project Details</label>
+                                <textarea class="form-control" id="projectDetails" rows="3"></textarea>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -250,21 +136,19 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="editOrderForm">
-                                <input type="hidden" id="editOrderId">
-                                <div class="mb-3">
-                                    <label for="editJobOrderId" class="form-label">Job Order ID</label>
-                                    <input type="text" class="form-control" id="editJobOrderId" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editCustomerName" class="form-label">Customer Name</label>
-                                    <input type="text" class="form-control" id="editCustomerName" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editProjectDetails" class="form-label">Project Details</label>
-                                    <textarea class="form-control" id="editProjectDetails" rows="3" required></textarea>
-                                </div>
-                            </form>
+                            <input type="hidden" id="editOrderId">
+                            <div class="mb-3">
+                                <label for="editJobOrderId" class="form-label">Job Order ID</label>
+                                <input type="text" class="form-control" id="editJobOrderId">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCustomerName" class="form-label">Customer Name</label>
+                                <input type="text" class="form-control" id="editCustomerName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProjectDetails" class="form-label">Project Details</label>
+                                <textarea class="form-control" id="editProjectDetails" rows="3"></textarea>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -293,47 +177,31 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Void Order Modal -->
+            <div class="modal fade" id="voidOrderModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Void Order</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to void this order? This action cannot be undone.</p>
+                            <input type="hidden" id="voidOrderId">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-warning" onclick="voidOrder()">Void Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `,
         script: `
             <script>
                 let currentPage = 1;
                 const ordersPerPage = 20;
-
-                function getActionButtons(status, orderId) {
-                    const buttons = [];
-                    
-                    // Edit button
-                    buttons.push(\`
-                        <button class="btn btn-sm btn-primary" onclick="openEditModal('\${orderId}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    \`);
-
-                    // Hide button
-                    buttons.push(\`
-                        <button class="btn btn-sm btn-danger" onclick="openDeleteModal('\${orderId}')">
-                            <i class="fas fa-eye-slash"></i>
-                        </button>
-                    \`);
-
-                    // Status dropdown
-                    buttons.push(\`
-                        <div class="dropdown d-inline-block status-dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-tasks"></i> Status
-                            </button>
-                            <ul class="dropdown-menu shadow-sm">
-                                <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'settings')"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'printing')"><i class="fas fa-print me-2"></i>Printing</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'finishing')"><i class="fas fa-paint-brush me-2"></i>Finishing</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'releasing')"><i class="fas fa-paper-plane me-2"></i>Releasing</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'billing')"><i class="fas fa-file-invoice-dollar me-2"></i>Billing</a></li>
-                            </ul>
-                        </div>
-                    \`);
-                    
-                    return \`<div class="action-buttons">\${buttons.join('')}</div>\`;
-                }
 
                 async function loadOrders() {
                     try {
@@ -352,9 +220,36 @@
                                 <td class="mobile-text-small">\${order.job_order_id || '-'}</td>
                                 <td class="mobile-text-small">\${order.customer_name}</td>
                                 <td class="mobile-text-small">\${order.project_details}</td>
-                                <td><span class="status-badge status-\${order.status.toLowerCase()}">\${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
+                                <td>
+                                    <span class="status-badge status-\${order.status.toLowerCase()}">\${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                                    \${order.is_void ? '<span class="badge bg-danger ms-1">Void</span>' : ''}
+                                </td>
                                 <td class="mobile-text-small">\${order.is_hide ? 'True' : 'False'}</td>
-                                <td>\${getActionButtons(order.status.toLowerCase(), order.id)}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="openEditModal('\${order.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="openDeleteModal('\${order.id}')">
+                                        <i class="fas fa-eye-slash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" onclick="openVoidModal('\${order.id}')">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Status
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'settings')">Settings</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'printing')">Printing</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'finishing')">Finishing</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'releasing')">Releasing</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'billing')">Billing</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('\${order.id}', 'completed')">Completed</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
                             </tr>
                         \`).join('');
                         
@@ -384,27 +279,40 @@
                             body: JSON.stringify({
                                 job_order_id: jobOrderId,
                                 customer_name: customerName,
-                                project_details: projectDetails
+                                project_details: projectDetails,
+                                status: 'received'
                             })
                         });
 
-                        if (!response.ok) throw new Error('Failed to create order');
+                        const result = await response.json();
 
-                        document.getElementById('createOrderForm').reset();
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Failed to create order');
+                        }
+
+                        // Reset form
+                        document.getElementById('jobOrderId').value = '';
+                        document.getElementById('customerName').value = '';
+                        document.getElementById('projectDetails').value = '';
+
+                        // Close modal
                         bootstrap.Modal.getInstance(document.getElementById('createOrderModal')).hide();
+
+                        // Refresh orders
                         loadOrders();
                     } catch (error) {
                         console.error('Error creating order:', error);
-                        alert('Failed to create order. Please try again.');
+                        alert(error.message || 'Failed to create order. Please try again.');
                     }
                 }
 
                 async function openEditModal(orderId) {
                     try {
-                        const response = await fetch(\`/api/orders/\${orderId}\`);
+                        const response = await fetch('/api/orders/' + orderId);
                         if (!response.ok) throw new Error('Failed to fetch order');
                         
                         const order = await response.json();
+                        
                         document.getElementById('editOrderId').value = order.id;
                         document.getElementById('editJobOrderId').value = order.job_order_id || '';
                         document.getElementById('editCustomerName').value = order.customer_name;
@@ -413,7 +321,7 @@
                         new bootstrap.Modal(document.getElementById('editOrderModal')).show();
                     } catch (error) {
                         console.error('Error fetching order:', error);
-                        alert('Failed to load order details. Please try again.');
+                        alert('Failed to fetch order details. Please try again.');
                     }
                 }
 
@@ -423,16 +331,16 @@
                     const customerName = document.getElementById('editCustomerName').value;
                     const projectDetails = document.getElementById('editProjectDetails').value;
 
-                    if (!jobOrderId || !customerName || !projectDetails) {
-                        alert('Please fill in all fields');
+                    if (!customerName || !projectDetails) {
+                        alert('Please fill in all required fields');
                         return;
                     }
 
                     try {
-                        const response = await fetch(\`/api/orders/\${orderId}\`, {
+                        const response = await fetch('/api/orders/' + orderId, {
                             method: 'PUT',
                             headers: {
-                                'Content-Type': 'application/json',
+                                'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
                                 job_order_id: jobOrderId,
@@ -441,13 +349,17 @@
                             })
                         });
 
-                        if (!response.ok) throw new Error('Failed to update order');
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Failed to update order');
+                        }
 
                         bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
                         loadOrders();
                     } catch (error) {
                         console.error('Error updating order:', error);
-                        alert('Failed to update order. Please try again.');
+                        alert(error.message || 'Failed to update order. Please try again.');
                     }
                 }
 
@@ -482,41 +394,70 @@
                     }
                 }
 
-                async function updateStatus(orderId, newStatus) {
+                function openVoidModal(orderId) {
+                    document.getElementById('voidOrderId').value = orderId;
+                    new bootstrap.Modal(document.getElementById('voidOrderModal')).show();
+                }
+
+                async function voidOrder() {
+                    const orderId = document.getElementById('voidOrderId').value;
                     try {
-                        const response = await fetch(\`/api/orders/\${orderId}\`, {
+                        const response = await fetch('/api/orders/' + orderId, {
                             method: 'PATCH',
                             headers: {
-                                'Content-Type': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ is_void: true })
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Failed to void order');
+                        }
+
+                        bootstrap.Modal.getInstance(document.getElementById('voidOrderModal')).hide();
+                        loadOrders();
+                    } catch (error) {
+                        console.error('Error voiding order:', error);
+                        alert(error.message || 'Failed to void order. Please try again.');
+                    }
+                }
+
+                async function updateStatus(orderId, newStatus) {
+                    try {
+                        const response = await fetch('/api/orders/' + orderId, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ status: newStatus })
                         });
 
                         if (!response.ok) throw new Error('Failed to update status');
-
+                        
                         loadOrders();
                     } catch (error) {
                         console.error('Error updating status:', error);
-                        alert('Failed to update order status. Please try again.');
+                        alert('Failed to update status. Please try again.');
                     }
                 }
 
                 async function updateShowStatus(orderId, isShow) {
                     try {
-                        const response = await fetch(\`/api/orders/\${orderId}\`, {
+                        const response = await fetch('/api/orders/' + orderId, {
                             method: 'PATCH',
                             headers: {
-                                'Content-Type': 'application/json',
+                                'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify({ isShow: isShow })
+                            body: JSON.stringify({ is_hide: !isShow })
                         });
 
                         if (!response.ok) throw new Error('Failed to update show status');
-
+                        
                         loadOrders();
                     } catch (error) {
                         console.error('Error updating show status:', error);
-                        alert('Failed to update order visibility. Please try again.');
+                        alert('Failed to update show status. Please try again.');
                     }
                 }
 
@@ -542,13 +483,14 @@
                 }
 
                 function changePage(page) {
-                    if (page < 1) return;
-                    currentPage = page;
-                    loadOrders();
+                    if (page >= 1) {
+                        currentPage = page;
+                        loadOrders();
+                    }
                 }
 
-                // Load orders when the page loads
-                document.addEventListener('DOMContentLoaded', loadOrders);
+                // Initial load
+                loadOrders();
             </script>
         `
     }) %>

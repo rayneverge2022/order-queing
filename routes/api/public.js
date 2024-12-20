@@ -9,6 +9,8 @@ router.get('/orders', async (req, res) => {
         const { data: orders, error } = await supabase
             .from('job_orders')
             .select('*')
+            .eq('is_hide', false)
+            .eq('is_void', false)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
