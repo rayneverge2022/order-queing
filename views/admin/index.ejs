@@ -19,6 +19,7 @@
         .status-printing { background-color: #FFB6C1; } /* Pink */
         .status-releasing { background-color: #90EE90; } /* Light Green */
         .status-billing { background-color: #228B22; color: white !important; } /* Green with white text */
+        .status-finishing { background-color: #9370DB; color: white !important; } /* Purple */
 
         .table-container {
             height: auto;
@@ -127,6 +128,7 @@
                 .status-printing { background-color: #FFB6C1; } /* Pink */
                 .status-releasing { background-color: #90EE90; } /* Light Green */
                 .status-billing { background-color: #228B22; color: white !important; } /* Green with white text */
+                .status-finishing { background-color: #9370DB; color: white !important; } /* Purple */
 
                 @media (max-width: 768px) {
                     .table-responsive {
@@ -313,6 +315,7 @@
                             <ul class="dropdown-menu shadow-sm">
                                 <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'settings')"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'printing')"><i class="fas fa-print me-2"></i>Printing</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'finishing')"><i class="fas fa-paint-brush me-2"></i>Finishing</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'releasing')"><i class="fas fa-paper-plane me-2"></i>Releasing</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="updateStatus('\${orderId}', 'billing')"><i class="fas fa-file-invoice-dollar me-2"></i>Billing</a></li>
                             </ul>
