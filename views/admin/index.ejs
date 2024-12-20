@@ -187,6 +187,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Job Order ID</th>
                                         <th>Customer</th>
                                         <th>Details</th>
                                         <th>Status</th>
@@ -218,6 +219,10 @@
                         <div class="modal-body">
                             <form id="createOrderForm">
                                 <div class="mb-3">
+                                    <label for="jobOrderId" class="form-label">Job Order ID</label>
+                                    <input type="text" class="form-control" id="jobOrderId" required>
+                                </div>
+                                <div class="mb-3">
                                     <label for="customerName" class="form-label">Customer Name</label>
                                     <input type="text" class="form-control" id="customerName" required>
                                 </div>
@@ -246,6 +251,10 @@
                         <div class="modal-body">
                             <form id="editOrderForm">
                                 <input type="hidden" id="editOrderId">
+                                <div class="mb-3">
+                                    <label for="editJobOrderId" class="form-label">Job Order ID</label>
+                                    <input type="text" class="form-control" id="editJobOrderId" required>
+                                </div>
                                 <div class="mb-3">
                                     <label for="editCustomerName" class="form-label">Customer Name</label>
                                     <input type="text" class="form-control" id="editCustomerName" required>
@@ -339,6 +348,7 @@
                         tbody.innerHTML = pageOrders.map(order => \`
                             <tr>
                                 <td class="mobile-text-small">#\${order.id}</td>
+                                <td class="mobile-text-small">\${order.job_order_id || '-'}</td>
                                 <td class="mobile-text-small">\${order.customer_name}</td>
                                 <td class="mobile-text-small">\${order.project_details}</td>
                                 <td><span class="status-badge status-\${order.status.toLowerCase()}">\${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
@@ -354,10 +364,11 @@
                 }
 
                 async function createOrder() {
+                    const jobOrderId = document.getElementById('jobOrderId').value;
                     const customerName = document.getElementById('customerName').value;
                     const projectDetails = document.getElementById('projectDetails').value;
 
-                    if (!customerName || !projectDetails) {
+                    if (!jobOrderId || !customerName || !projectDetails) {
                         alert('Please fill in all fields');
                         return;
                     }
@@ -369,6 +380,7 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
+                                job_order_id: jobOrderId,
                                 customer_name: customerName,
                                 project_details: projectDetails
                             })
@@ -392,6 +404,7 @@
                         
                         const order = await response.json();
                         document.getElementById('editOrderId').value = order.id;
+                        document.getElementById('editJobOrderId').value = order.job_order_id || '';
                         document.getElementById('editCustomerName').value = order.customer_name;
                         document.getElementById('editProjectDetails').value = order.project_details;
                         
@@ -404,10 +417,11 @@
 
                 async function updateOrder() {
                     const orderId = document.getElementById('editOrderId').value;
+                    const jobOrderId = document.getElementById('editJobOrderId').value;
                     const customerName = document.getElementById('editCustomerName').value;
                     const projectDetails = document.getElementById('editProjectDetails').value;
 
-                    if (!customerName || !projectDetails) {
+                    if (!jobOrderId || !customerName || !projectDetails) {
                         alert('Please fill in all fields');
                         return;
                     }
@@ -419,6 +433,7 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
+                                job_order_id: jobOrderId,
                                 customer_name: customerName,
                                 project_details: projectDetails
                             })
@@ -505,33 +520,6 @@
 
                 // Load orders when the page loads
                 document.addEventListener('DOMContentLoaded', loadOrders);
-
-                // Load settings and apply them
-                async function loadSettings() {
-                    try {
-                        const response = await fetch('/api/settings');
-                        if (!response.ok) throw new Error('Failed to load settings');
-                        
-                        const settings = await response.json();
-                        if (settings.orders_per_page) {
-                            ordersPerPage = parseInt(settings.orders_per_page);
-                            loadOrders();
-                        }
-                    } catch (error) {
-                        console.error('Error loading settings:', error);
-                    }
-                }
-
-                // Listen for settings changes
-                window.addEventListener('settingsChanged', (e) => {
-                    if (e.detail.orders_per_page) {
-                        ordersPerPage = parseInt(e.detail.orders_per_page);
-                        loadOrders();
-                    }
-                });
-
-                // Load settings when page loads
-                loadSettings();
             </script>
         `
     }) %>

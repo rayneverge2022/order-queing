@@ -115,6 +115,13 @@
             background: #198754;
         }
 
+        .job-order-id {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0d6efd;
+            margin-bottom: 0.5rem;
+        }
+
         @media (max-width: 768px) {
             .status-label {
                 font-size: 0.85rem;
@@ -216,17 +223,25 @@
                     orders.forEach(order => {
                         const orderHtml = `
                             <li class="order-item">
-                                <div class="order-header">
+                                <div class="order-header d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h5 class="mb-1">${order.customer_name}</h5>
-                                        <small class="text-muted">Order ID: ${order.id}</small>
+                                        <h5 class="mb-0">${order.customer_name}</h5>
+                                        <div class="job-order-id">
+                                            Job Order: ${order.job_order_id || '-'}
+                                        </div>
+                                        <div class="text-muted">
+                                            <div class="project-details">
+                                                ${order.project_details}
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="text-end">
-                                        <div class="mb-1">${new Date(order.created_at).toLocaleDateString()}</div>
+                                        <div class="text-muted mb-2">
+                                            <small>${new Date(order.created_at).toLocaleDateString()}</small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="order-details">
-                                    <p class="mb-2">${order.project_details || ''}</p>
                                     ${getStatusTimeline(order.status)}
                                 </div>
                             </li>

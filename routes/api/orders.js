@@ -42,35 +42,43 @@ router.get('/:id', async (req, res) => {
 // Create new order
 router.post('/', async (req, res) => {
     try {
-        const { customer_name, project_details, status } = req.body;
+        console.log('Received order data:', req.body); // Log the incoming data
+        const { job_order_id, customer_name, project_details, status } = req.body;
+        
+        const orderData = { 
+            job_order_id,
+            customer_name, 
+            project_details, 
+            status: status || 'received',
+            created_at: new Date().toISOString()
+        };
+        console.log('Attempting to insert order:', orderData); // Log the data being inserted
+
         const { data, error } = await supabase
             .from('job_orders')
-            .insert([
-                { 
-                    customer_name, 
-                    project_details, 
-                    status: status || 'received',
-                    created_at: new Date().toISOString()
-                }
-            ])
+            .insert([orderData])
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase error:', error); // Log any Supabase errors
+            throw error;
+        }
+        console.log('Successfully created order:', data); // Log the created order
         res.status(201).json(data);
     } catch (error) {
         console.error('Error creating order:', error);
-        res.status(500).json({ error: 'Failed to create order' });
+        res.status(500).json({ error: 'Failed to create order', details: error.message });
     }
 });
 
 // Update order
 router.put('/:id', async (req, res) => {
     try {
-        const { customer_name, project_details } = req.body;
+        const { job_order_id, customer_name, project_details } = req.body;
         const { data, error } = await supabase
             .from('job_orders')
-            .update({ customer_name, project_details })
+            .update({ job_order_id, customer_name, project_details })
             .eq('id', req.params.id)
             .select()
             .single();
