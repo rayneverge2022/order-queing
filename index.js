@@ -89,6 +89,10 @@ app.get('/admin', requireAuth, (req, res) => {
   res.render('admin/index');
 });
 
+app.get('/admin/status-overview', requireAuth, (req, res) => {
+  res.render('admin/status-overview');
+});
+
 app.get('/admin/dashboard', requireAuth, (req, res) => {
   res.render('admin/dashboard');
 });
